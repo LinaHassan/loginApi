@@ -11,7 +11,7 @@ clickbtn.addEventListener("click", (e) => {
 
 
 
-  if (!email.value || !pass.value) {
+  if (!email.value || !pass.value) {git 
     error.innerHTML = "Please enter your email and password.";
     return;
   }
