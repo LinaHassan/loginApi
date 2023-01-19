@@ -1,133 +1,114 @@
 const user = JSON.parse(localStorage.getItem("user"));
-const iduser = user.id;
-const name = user.name;
-const username = user.username;
+
+window.addEventListener("load", () => {
+  getPosts();
+
+  document.getElementById("addpost").addEventListener("click", () => {
+    document.getElementById("add").style.display = "block";
+  });
+
+  document.getElementById("newpost").addEventListener("click", () => {
+    const text = document.getElementById("text");
+    const newPost = text.value;
+    document.getElementById("add").style.display = "none";
+
+    createPost(newPost);
+  });
+});
 
 const getPosts = async () => {
   const response = await fetch(
-    "https://jsonplaceholder.typicode.com/users/" + iduser + "/posts"
+    "https://jsonplaceholder.typicode.com/users/" + `${user.id}` + "/posts"
   );
 
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
-  const postsdata = await response.json();
+  const postsData = await response.json();
 
-  postsdata.forEach((post) => {
-    const body = post.body;
-    const id = post.id;
-    createPost(body, id);
+  postsData.forEach((post) => {
+    createPost(post.body, post.id);
   });
+
   document.addEventListener("click", (event) => {
     if (event.target.matches(".post")) {
-      const postid = event.target.id;
-      const post = postsdata.find((item) => item.id == postid).body;
-      localStorage.setItem("postid", postid);
+      const postId = event.target.id;
+      const post = postsData.find((item) => item.id == postId).body;
       localStorage.setItem("post", post);
-      window.location.href = "comments.html";
+      window.location.href = "comments.html?id="+`${postId}`;
 
       return;
     }
   });
 };
 
-getPosts();
-
-document.getElementById("addpost").addEventListener("click", function () {
-  document.getElementById("add").style.display = "block";
-});
-
-document.getElementById("newpost").addEventListener("click", function () {
-  const body = document.getElementById("text");
-  const test = body.value;
-  document.getElementById("add").style.display = "none";
-
-  createPost(test);
-});
-
-function createPost(body, id) {
+const createPost = (postBody, id) => {
   const continer = document.getElementById("continer");
+  const postCard = document.createElement("div");
+  postCard.setAttribute("class", "myposts");
 
-  const onepost = document.createElement("div");
-  continer.append(onepost);
-  onepost.setAttribute("class", "myposts");
+  const profileImg = document.createElement("img");
+  profileImg.setAttribute("src", "img/Ellipse.png");
+  profileImg.setAttribute("alt", "Profile pic");
 
-  var myimg = document.createElement("img");
-  myimg.setAttribute("src", "Ellipse.png");
-  myimg.setAttribute("alt", "Profile pic");
-  onepost.append(myimg);
+  const nameInfo = document.createElement("div");
+  nameInfo.setAttribute("class", "text-info");
 
-  const nameinfo = document.createElement("div");
-  onepost.append(nameinfo);
-  nameinfo.setAttribute("class", "text-info");
+  const name = document.createElement("p");
+  name.innerHTML = user.name;
 
-  const pname = document.createElement("p");
-  pname.innerHTML = name;
-  nameinfo.append(pname);
-
-  const puname = document.createElement("p");
-  puname.innerHTML = "@" + username;
-  puname.setAttribute("class", "username");
-
-  nameinfo.append(puname);
+  const userName = document.createElement("p");
+  userName.innerHTML = "@" + user.name;
+  userName.setAttribute("class", "username");
 
   const allPosts = document.createElement("div");
-  onepost.append(allPosts);
   allPosts.setAttribute("class", "allpost");
 
   const postEl = document.createElement("p");
-  postEl.innerHTML = body;
+  postEl.innerHTML = postBody;
   postEl.setAttribute("class", "post");
   postEl.setAttribute("id", id);
-  allPosts.append(postEl);
 
-  const commsec = document.createElement("div");
-  commsec.setAttribute("class", "commsec");
-  onepost.append(commsec);
+  const commentSec = document.createElement("div");
+  commentSec.setAttribute("class", "commsec");
 
-  const comm = document.createElement("input");
-  comm.setAttribute("placeholder", "Add commment");
-  comm.setAttribute("onkeydown", "addComm(this)");
+  const comment = document.createElement("input");
+  comment.setAttribute("placeholder", "Add commment");
+  comment.setAttribute("onkeydown", "addComment(this)");
+  continer.appendChild(postCard);
+  postCard.appendChild(profileImg);
+  postCard.appendChild(nameInfo);
+  nameInfo.appendChild(name);
+  nameInfo.appendChild(userName);
+  postCard.appendChild(allPosts);
+  allPosts.appendChild(postEl);
+  postCard.appendChild(commentSec);
+  commentSec.append(comment);
+};
 
-  commsec.append(comm);
-}
-
-function addComm(comm) {
-  if (event.key === "Enter" && comm.value != "") {
+const addComment = (comment) => {
+  if (event.key === "Enter" && comment.value != "") {
     const section = document.createElement("section");
     section.setAttribute("class", "myposts");
 
-    var myimg = document.createElement("img");
-    myimg.setAttribute("src", "Ellipse.png");
-    myimg.setAttribute("alt", "Profile pic");
-    section.append(myimg);
+    const commentImg = document.createElement("img");
+    commentImg.setAttribute("src", "img/Ellipse.png");
+    commentImg.setAttribute("alt", "Profile pic");
+    section.appendChild(commentImg);
 
     const nameinfo = document.createElement("div");
     section.append(nameinfo);
+
     nameinfo.setAttribute("class", "text-info");
 
-    const pname = document.createElement("p");
-    pname.innerHTML = name;
-    nameinfo.append(pname);
-    const comment = document.createElement("p");
-    comment.setAttribute("class", "mycomment");
-    section.append(comment);
-    comment.innerHTML = comm.value;
-    comm.insertAdjacentElement("beforebegin", section);
-    comm.value = "";
+    const name = document.createElement("p");
+    name.innerHTML = user.name;
+    nameinfo.append(name);
+    const newComment = document.createElement("p");
+    newComment.setAttribute("class", "mycomment");
+    section.append(newComment);
+    newComment.innerHTML = comment.value;
+    comment.insertAdjacentElement("beforebegin", section);
+    comment.value = "";
   }
-}
-
-/*
-document.querySelectorAll('post').forEach(elem => {
-  elem.addEventListener('click', () => {
-    console.log('yeeeees');
-  });
-});
-*/
-/*
-function saveid(e){
-  localStorage.setItem("postid", e);
-
-     return
-  }*/
+};
